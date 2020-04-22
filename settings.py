@@ -20,7 +20,7 @@ DB_CONN = f'Driver={DB_DRIVER}; Server={DB_HOST}; Database={DB_NAME}; UID={DB_US
 TBL_RENTAL = 'rental_data'
 
 # Column names of rental data table
-COL_DATE = 'date1'
+COL_DATE = 'date'
 COL_HOUR = 'hr'
 COL_WEATHER = 'weather'
 COL_TEMP = 'temperature'

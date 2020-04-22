@@ -18,11 +18,15 @@ def get_rentals():
 
         return pd.read_sql_query(settings.SQL_RENTAL, conn_mssql)
 
-    except (pyodbc.Error, pyodbc.ProgrammingError) as err:
-
+    except (pyodbc.Error, ) as err:
         err_msg = err.args[1]
 
-        print('##########' + err_msg)
+    except pd.io.sql.DatabaseError as err:
+        err_msg = err.args[0]
+
+    print(err_msg)
+
+    return None
 
 
 df_rentals = get_rentals()
