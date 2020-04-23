@@ -1,11 +1,13 @@
 """
-Default script settings
+Default script settings for data extraction from rentals data table
 
-Configure parameters used to connect to the database that contains the rentals table
+Configure parameters used to connect to the database that contains the rentals data table
 Configure the SQL statement used to extract data from the rentals table
 """
 
 # Microsoft SQL Server connection string parameters
+# Database connection string requires database driver, host, name, user id and password
+# For detail documentation on the pyodbc module, please refer to https://github.com/mkleehammer/pyodbc/wiki
 
 DB_DRIVER = 'ODBC Driver 17 for SQL Server'
 DB_HOST = 'aice.database.windows.net'
@@ -13,13 +15,14 @@ DB_NAME = 'aice'
 DB_USERID= 'aice_candidate'
 DB_PASSWORD = '@ic3_a3s0c1at3'
 
-DB_CONN = f'Driver={DB_DRIVER}; Server={DB_HOST}; Database={DB_NAME}; UID={DB_USERID}; PWD={DB_PASSWORD};'
+# Assemble the database connection string
+DB_CONN_STR = f'Driver={DB_DRIVER}; Server={DB_HOST}; Database={DB_NAME}; UID={DB_USERID}; PWD={DB_PASSWORD};'
 
 
-# Table name of rental data
+# Name of rentals table
 TBL_RENTAL = 'rental_data'
 
-# Column names of rental data table
+# Column names of rentals data table
 COL_DATE = 'date'
 COL_HOUR = 'hr'
 COL_WEATHER = 'weather'
@@ -47,7 +50,8 @@ SQL_WHERE = f'{COL_DATE} BETWEEN \'{SQL_WHERE_DATE_START}\' AND \'{SQL_WHERE_DAT
 # Assemble SQL statement
 SQL_RENTAL = f'SELECT {SQL_SELECT_COLS} FROM {TBL_RENTAL} WHERE {SQL_WHERE}'
 
-# Testing --- Testing --- Testing --- Testing --- Testing --- Testing --- Testing --- Testing --- Testing --- Testing
+
+# TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
 
 # print(SQL_RENTAL)
 # print(DB_CONN)
