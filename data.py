@@ -50,6 +50,11 @@ def get_rentals():
     return None
 
 
+def clean_data(data):
+
+
+
+
 # TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
 '''
 df_rentals = get_rentals()
