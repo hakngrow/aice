@@ -14,6 +14,10 @@ import pyodbc
 
 import settings
 
+# Column labels of rentals data dataframe
+COL_DATE_STR = 'date_str'
+COL_DATETIME = 'datetime'
+
 
 def get_rentals():
     """Establish connection to Microsoft SQL server, extract rentals data from table and returns a dataframe
@@ -50,9 +54,37 @@ def get_rentals():
     return None
 
 
-def clean_data(data):
+def clean_data(df_rentals):
 
+    # Clean date column ################################################################################################
 
+    # Rename date column to date_str to indicate string data type
+    df_rentals.rename(columns={settings.COL_DATE: COL_DATE_STR}, inplace=True)
+
+    # Create datetime column by concatenating the date and hr columns
+    df_rentals[COL_DATETIME] = df_rentals.apply(lambda row: row[COL_DATE_STR] + ' ' + str(row[settings.COL_HOUR]),
+                                                axis=1) + ':00'
+
+    # Convert datetime column from string to datetime data type
+    df_rentals.datetime = pd.to_datetime(df_rentals.datetime)
+
+    # Clean weather column #############################################################################################
+
+    # Standardized weather column to lower case characters
+    df_rentals.weather = df_rentals.weather.str.lower()
+
+    # Replace incorrect values 'lear' and 'clar' with 'clear'
+    df_rentals.weather.replace(['lear', 'clar'], 'clear', inplace=True)
+
+    # Replace incorrect values 'cludy' and 'loudy' with 'cloudy'
+    df_rentals.weather.replace(['cludy', 'loudy'], 'cloudy', inplace=True)
+
+    # Replace incorrect value 'liht snow/rain' with 'light snow/rain'
+    df_rentals.weather.replace('liht snow/rain', 'light snow/rain', inplace=True)
+
+    # Clean temperature and feels_like_temperature columns #############################################################
+
+    return df_rentals
 
 
 # TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
