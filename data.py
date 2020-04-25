@@ -78,12 +78,12 @@ def clean_data(df_rentals):
                                                 axis=1) + ':00'
 
     # Convert datetime column from string to datetime data type
-    df_rentals.datetime = pd.to_datetime(df_rentals.datetime)
+    df_rentals[COL_DATETIME] = pd.to_datetime(df_rentals[COL_DATETIME])
 
     # Clean weather column #############################################################################################
 
     # Standardized weather column to lower case characters
-    df_rentals.weather = df_rentals.weather.str.lower()
+    df_rentals[settings.COL_WEATHER] = df_rentals[settings.COL_WEATHER].str.lower()
 
     dict_weather = {
 
@@ -105,15 +105,15 @@ def clean_data(df_rentals):
     # Clean relative_humidity column ###################################################################################
 
     # Drop observations with relative humidity value of 0
-    df_rentals.drop(df_rentals[df_rentals.relative_humidity == 0].index, inplace=True)
+    df_rentals.drop(df_rentals[df_rentals[settings.COL_REL_HUMIDITY] == 0].index, inplace=True)
 
     # Clean guest_scooter, registered_scooter columns ##################################################################
 
     # Set all negative values in the guest_scooter column to 0
-    df_rentals.loc[df_rentals.guest_scooter < 0, settings.COL_GUEST_SCOOTER] = 0
+    df_rentals.loc[df_rentals[settings.COL_GUEST_SCOOTER] < 0, settings.COL_GUEST_SCOOTER] = 0
 
     # Set all negative values in the registered_scooter column to 0
-    df_rentals.loc[df_rentals.registered_scooter < 0, settings.COL_REG_SCOOTER] = 0
+    df_rentals.loc[df_rentals[settings.COL_REG_SCOOTER] < 0, settings.COL_REG_SCOOTER] = 0
 
     # Remove duplicate columns #########################################################################################
 
@@ -124,9 +124,16 @@ def clean_data(df_rentals):
 
 
 # TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
-'''
-df_rentals = get_rentals()
 
-if df_rentals is not None:
-    df_rentals.info()
-'''
+df = get_rentals()
+
+if df is not None:
+
+    # Before cleaning
+    print(df.shape)
+
+    df_cleaned = clean_data(df)
+
+    # After cleaning
+    print(df.shape)
+
