@@ -55,6 +55,18 @@ def get_rentals():
 
 
 def clean_data(df_rentals):
+    """Cleans rental data in a dataframe and prepares it for EDA and modelling purposes
+
+    Parameters
+    ----------
+    df_rentals
+        a dataframe containing rentals data which needs cleaning to be ready for EDA and modelling
+
+    Returns
+    -------
+    dataframe
+        a dataframe containing rentals data ready for EDA and modelling
+    """
 
     # Clean date column ################################################################################################
 
@@ -73,16 +85,40 @@ def clean_data(df_rentals):
     # Standardized weather column to lower case characters
     df_rentals.weather = df_rentals.weather.str.lower()
 
-    # Replace incorrect values 'lear' and 'clar' with 'clear'
-    df_rentals.weather.replace(['lear', 'clar'], 'clear', inplace=True)
+    dict_weather = {
 
-    # Replace incorrect values 'cludy' and 'loudy' with 'cloudy'
-    df_rentals.weather.replace(['cludy', 'loudy'], 'cloudy', inplace=True)
+        # Replace incorrect values 'lear' and 'clar' with 'clear'
+        'lear': 'clear',
+        'clar': 'clear',
 
-    # Replace incorrect value 'liht snow/rain' with 'light snow/rain'
-    df_rentals.weather.replace('liht snow/rain', 'light snow/rain', inplace=True)
+        # Replace incorrect values 'cludy' and 'loudy' with 'cloudy'
+        'cludy': 'cloudy',
+        'loudy': 'cloudy',
 
-    # Clean temperature and feels_like_temperature columns #############################################################
+        # Replace incorrect value 'liht snow/rain' with 'light snow/rain'
+        'liht snow/rain': 'light snow/rain'
+    }
+
+    # Replace incorrect values in weather column
+    df_rentals.replace({settings.COL_WEATHER: dict_weather}, inplace=True)
+
+    # Clean relative_humidity column ###################################################################################
+
+    # Drop observations with relative humidity value of 0
+    df_rentals.drop(df_rentals[df_rentals.relative_humidity == 0].index, inplace=True)
+
+    # Clean guest_scooter, registered_scooter columns ##################################################################
+
+    # Set all negative values in the guest_scooter column to 0
+    df_rentals.loc[df_rentals.guest_scooter < 0, settings.COL_GUEST_SCOOTER] = 0
+
+    # Set all negative values in the registered_scooter column to 0
+    df_rentals.loc[df_rentals.registered_scooter < 0, settings.COL_REG_SCOOTER] = 0
+
+    # Remove duplicate columns #########################################################################################
+
+    # Drop duplicate observations
+    df_rentals.drop_duplicates(inplace=True)
 
     return df_rentals
 
