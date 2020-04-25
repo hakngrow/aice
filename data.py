@@ -14,10 +14,10 @@ import pyodbc
 
 import settings
 
-# Column labels of rentals data dataframe
+# Labels of extra columns/features created for EDA and modelling
 COL_DATE_STR = 'date_str'
 COL_DATETIME = 'datetime'
-
+COL_ACT_SCOOTER = 'active_scooter'
 
 def get_rentals():
     """Establish connection to Microsoft SQL server, extract rentals data from table and returns a dataframe
@@ -115,7 +115,7 @@ def clean_data(df_rentals):
     # Set all negative values in the registered_scooter column to 0
     df_rentals.loc[df_rentals[settings.COL_REG_SCOOTER] < 0, settings.COL_REG_SCOOTER] = 0
 
-    # Remove duplicate columns #########################################################################################
+    # Remove duplicate observations ####################################################################################
 
     # Drop duplicate observations
     df_rentals.drop_duplicates(inplace=True)
@@ -123,8 +123,18 @@ def clean_data(df_rentals):
     return df_rentals
 
 
-# TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
+def engineer_features(df_rentals):
 
+    # Create target/dependent variable column ##########################################################################
+
+    # Create active_scooter column as target variable
+    df_rentals[COL_ACT_SCOOTER] = df_rentals[settings.COL_GUEST_SCOOTER] + df_rentals[settings.COL_REG_SCOOTER]
+
+    return df_rentals
+
+
+# TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
+'''
 df = get_rentals()
 
 if df is not None:
@@ -136,4 +146,4 @@ if df is not None:
 
     # After cleaning
     print(df.shape)
-
+'''
