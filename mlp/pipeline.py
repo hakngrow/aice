@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 
 import pyodbc
 
-from mlp import settings
+import settings
 
 # Labels of extra columns/features created for EDA and modelling
 COL_DATE_STR = 'date_str'
@@ -354,44 +354,46 @@ def do_linear_regression(X_train, y_train, X_test, y_test):
     print('Root Mean Squared Error:', np.sqrt(mean_sq_err))
 
 
-print('Retrieving rentals data from: ', settings.DB_HOST)
+if __name__ == "__main__":
 
-# Get rentals data from Microsoft SQL server
-df = get_rentals()
+    print('Retrieving rentals data from: ', settings.DB_HOST)
 
-if df is not None:
+    # Get rentals data from Microsoft SQL server
+    df = get_rentals()
 
-    print('Before data cleaning: ', df.shape)
+    if df is not None:
 
-    df_cleaned = clean_data(df)
+        print('Before data cleaning: ', df.shape)
 
-    print('After data cleaning: ', df_cleaned.shape)
+        df_cleaned = clean_data(df)
 
-    df = create_target_variable(df)
-    df_1hot = engineer_features(df)
+        print('After data cleaning: ', df_cleaned.shape)
 
-    print('After feature engineering: ', df_1hot.shape)
+        df = create_target_variable(df)
+        df_1hot = engineer_features(df)
 
-    cols_ML = ML_FEATURES.copy()
+        print('After feature engineering: ', df_1hot.shape)
 
-    cols_ML.append(ML_TARGET)
+        cols_ML = ML_FEATURES.copy()
 
-    df_ML = df_1hot[cols_ML]
+        cols_ML.append(ML_TARGET)
 
-    df_ML = remove_outliers(df_ML)
+        df_ML = df_1hot[cols_ML]
 
-    print('After removing outliers: ', df_ML.shape)
+        df_ML = remove_outliers(df_ML)
 
-    X_train, X_test, y_train, y_test = get_train_test_split(df_ML)
+        print('After removing outliers: ', df_ML.shape)
 
-    print('Train: ', len(X_train), ', Test: ', len(X_test), ', Total: ', len(df_ML))
+        X_train, X_test, y_train, y_test = get_train_test_split(df_ML)
 
-    print('Start linear regression and eval...')
+        print('Train: ', len(X_train), ', Test: ', len(X_test), ', Total: ', len(df_ML))
 
-    X_train_scaled = scale_features(X_train)
-    X_test_scaled = scale_features(X_test)
+        print('Start linear regression and eval...')
 
-    do_linear_regression(X_train_scaled, y_train, X_test_scaled, y_test)
+        X_train_scaled = scale_features(X_train)
+        X_test_scaled = scale_features(X_test)
+
+        do_linear_regression(X_train_scaled, y_train, X_test_scaled, y_test)
 
 
 
