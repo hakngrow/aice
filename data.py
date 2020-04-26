@@ -6,11 +6,18 @@ To configure database parameters and extraction settings, please refer to docume
 pyodbc (https://github.com/mkleehammer/pyodbc) module is used to enable connection to Microsoft SQL server.
 """
 
+import numpy as np
 import pandas as pd
 
 from pandas.io.sql import DatabaseError
 
+from sklearn import metrics
+
 from sklearn.preprocessing import StandardScaler
+
+from sklearn.linear_model import LinearRegression
+
+from sklearn.model_selection import train_test_split
 
 import pyodbc
 
@@ -143,7 +150,7 @@ ML_FEATURES = [settings.COL_REG_SCOOTER,
                COL_WEATHER_LIGHT_SNOW_RAIN,
                COL_DAY_OF_WEEK_SUN,
                COL_HOUR_0, COL_HOUR_1, COL_HOUR_2, COL_HOUR_3, COL_HOUR_4, COL_HOUR_5, COL_HOUR_8,
-               COL_HOUR_16, COL_HOUR_17, COL_HOUR_18, COL_HOUR_19]
+               COL_HOUR_16, COL_HOUR_17, COL_HOUR_18, COL_HOUR_19, COL_HOUR_23]
 
 ML_TARGET = COL_ACT_SCOOTER
 
@@ -299,40 +306,95 @@ def engineer_features(df_rentals):
 
 def remove_outliers(df_rentals):
 
-    # Remove outliers from registered_scooter, guest_scooter and windspeed base on their maximum values in the box plots
-    df_rentals = df_rentals[df_rentals.registered_scooter <= 3491]
-    df_rentals = df_rentals[df_rentals.guest_scooter <= 346]
-    df_rentals = df_rentals[df_rentals.windspeed <= 32]
+    # Remove outliers from registered_scooter and guest_scooter columns base on their maximum values in the box plots
+    df_rentals = df_rentals[df_rentals[settings.COL_REG_SCOOTER] <= 3491]
+    df_rentals = df_rentals[df_rentals[settings.COL_GUEST_SCOOTER] <= 346]
 
     return df_rentals
 
 
-def scale_features(df_rentals_1hot):
+def get_train_test_split(df_selected):
 
-    cols_X = cols_all.copy()
+    cols_X = df_selected.columns.to_list()
 
-    X = df_rentals_1hot[cols_X]
+    cols_X.remove(ML_TARGET)
+
+    # Independent variables
+    X = df_selected[cols_X]
+
+    # Target/dependent variable
+    y = df_selected[ML_TARGET]
+
+    # Split dataset into train and test subsets
+    return train_test_split(X, y, test_size=0.33, random_state=19)
+
+
+def scale_features(df_selected):
 
     std_scaler = StandardScaler()
 
-    # Standard scale the independent variables
-    X_scaled = std_scaler.fit_transform(X)
-    X_scaled = pd.DataFrame(X_scaled, columns=X.columns)
+    df_scaled = std_scaler.fit_transform(df_selected)
 
-    return X_scaled
+    return pd.DataFrame(df_scaled, columns=df_selected.columns)
 
 
-# TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #### TESTING #####
-'''
+def do_linear_regression(X_train, y_train, X_test, y_test):
+
+    lr = LinearRegression()
+
+    lr.fit(X_train, y_train)
+
+    y_pred = lr.predict(X_test)
+
+    print('Mean Absolute Error:', metrics.mean_absolute_error(y_test, y_pred))
+
+    mean_sq_err = metrics.mean_squared_error(y_test, y_pred)
+    print('Mean Squared Error:', mean_sq_err)
+
+    print('Root Mean Squared Error:', np.sqrt(mean_sq_err))
+
+
+# Get rentals data from Microsoft SQL server
 df = get_rentals()
 
 if df is not None:
 
-    # Before cleaning
-    print(df.shape)
+    print('Before data cleaning: ', df.shape)
 
     df_cleaned = clean_data(df)
 
-    # After cleaning
-    print(df.shape)
-'''
+    print('After data cleaning: ', df_cleaned.shape)
+
+    df = create_target_variable(df)
+    df_1hot = engineer_features(df)
+
+    print('After feature engineering: ', df_1hot.shape)
+
+    cols_ML = ML_FEATURES.copy()
+
+    cols_ML.append(ML_TARGET)
+
+    df_ML = df_1hot[cols_ML]
+
+    df_ML = remove_outliers(df_ML)
+
+    print('After removing outliers: ', df_ML.shape)
+
+    X_train, X_test, y_train, y_test = get_train_test_split(df_ML)
+
+    print('Train: ', len(X_train), ', Test: ', len(X_test), ', Total: ', len(df_ML))
+
+    print('Start linear regression and eval...')
+
+    X_train_scaled = scale_features(X_train)
+    X_test_scaled = scale_features(X_test)
+
+    do_linear_regression(X_train_scaled, y_train, X_test_scaled, y_test)
+
+
+
+
+
+
+
+
