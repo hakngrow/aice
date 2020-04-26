@@ -21,7 +21,7 @@ from sklearn.model_selection import train_test_split
 
 import pyodbc
 
-import settings
+from mlp import settings
 
 # Labels of extra columns/features created for EDA and modelling
 COL_DATE_STR = 'date_str'
@@ -353,6 +353,8 @@ def do_linear_regression(X_train, y_train, X_test, y_test):
 
     print('Root Mean Squared Error:', np.sqrt(mean_sq_err))
 
+
+print('Retrieving rentals data from: ', settings.DB_HOST)
 
 # Get rentals data from Microsoft SQL server
 df = get_rentals()
