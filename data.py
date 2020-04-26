@@ -19,6 +19,7 @@ COL_DATE_STR = 'date_str'
 COL_DATETIME = 'datetime'
 COL_ACT_SCOOTER = 'active_scooter'
 
+
 def get_rentals():
     """Establish connection to Microsoft SQL server, extract rentals data from table and returns a dataframe
 
